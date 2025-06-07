@@ -23,8 +23,8 @@ import {
   selectAuthLoading,
   selectAuthError,
 } from "../store/slices/authSlice";
-import { auth } from "../firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, googleProvider } from "../firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -89,7 +89,7 @@ const Login = () => {
         formData.email,
         formData.password
       );
-      
+
       // Extract user data and token from Firebase response
       const { user } = userCredential;
       const { accessToken, email, displayName, uid } = user;
@@ -104,15 +104,31 @@ const Login = () => {
 
       // Dispatch login success with user data and token
       dispatch(loginSuccess({ user: userData, token: accessToken }));
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       dispatch(loginFailure(err.message || "Login failed"));
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google OAuth login
-    console.log("Google login clicked");
+  const handleGoogleLogin = async () => {
+    dispatch(loginStart());
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const { user } = result;
+      const { accessToken, email, displayName, uid, photoURL } = user;
+
+      const userData = {
+        id: uid,
+        name: displayName || "User",
+        email: email,
+        avatar: photoURL || null, // Include Google profile picture if available
+      };
+
+      dispatch(loginSuccess({ user: userData, token: accessToken }));
+      navigate("/dashboard");
+    } catch (err) {
+      dispatch(loginFailure(err.message || "Google login failed"));
+    }
   };
 
   return (
