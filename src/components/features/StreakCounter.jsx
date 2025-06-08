@@ -1,13 +1,21 @@
-import React from 'react';
-import { Box, Typography, Paper, LinearProgress, Tooltip } from '@mui/material';
-import { LocalFireDepartment as FireIcon } from '@mui/icons-material';
-import PropTypes from 'prop-types';
+import React from "react";
+import {
+  Box,
+  Typography,
+  Paper,
+  LinearProgress,
+  Tooltip,
+  Button,
+} from "@mui/material";
+import { LocalFireDepartment as FireIcon } from "@mui/icons-material";
+import PropTypes from "prop-types";
 
 const StreakCounter = ({
   currentStreak = 0,
   bestStreak = 0,
   progress = 0,
   nextMilestone = 0,
+  onCheckIn,
   ...props
 }) => {
   return (
@@ -16,8 +24,9 @@ const StreakCounter = ({
       sx={{
         p: 3,
         borderRadius: 2,
-        background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-        color: 'white',
+        background: (theme) =>
+          `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+        color: "white",
       }}
       {...props}
     >
@@ -28,7 +37,7 @@ const StreakCounter = ({
             {currentStreak}
           </Typography>
           <Typography variant="subtitle2">
-            Day{currentStreak !== 1 ? 's' : ''} Streak
+            Day{currentStreak !== 1 ? "s" : ""} Streak
           </Typography>
         </Box>
       </Box>
@@ -37,16 +46,16 @@ const StreakCounter = ({
         <Typography variant="body2" mb={1}>
           Progress to next milestone
         </Typography>
-        <Tooltip title={`${progress}% to ${nextMilestone} days`}>
+        <Tooltip title={`${Math.round(progress)}% to ${nextMilestone} days`}>
           <LinearProgress
             variant="determinate"
             value={progress}
             sx={{
               height: 8,
               borderRadius: 4,
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: 'white',
+              backgroundColor: "rgba(255, 255, 255, 0.2)",
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "white",
               },
             }}
           />
@@ -59,7 +68,8 @@ const StreakCounter = ({
         sx={{
           p: 2,
           borderRadius: 1,
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: "rgba(255, 255, 255, 0.1)",
+          gap: 2,
         }}
       >
         <Box>
@@ -67,7 +77,7 @@ const StreakCounter = ({
             Current Streak
           </Typography>
           <Typography variant="h6">
-            {currentStreak} days
+            {currentStreak} day{currentStreak <= 1 ? "" : "s"}
           </Typography>
         </Box>
         <Box>
@@ -75,10 +85,20 @@ const StreakCounter = ({
             Best Streak
           </Typography>
           <Typography variant="h6">
-            {bestStreak} days
+            {bestStreak} day{currentStreak <= 1 ? "" : "s"}
           </Typography>
         </Box>
       </Box>
+
+      <Button
+        variant="contained"
+        color="inherit"
+        fullWidth
+        sx={{ mt: 2, backgroundColor: "white", color: "primary.main" }}
+        onClick={onCheckIn}
+      >
+        Check In
+      </Button>
     </Paper>
   );
 };
@@ -88,6 +108,7 @@ StreakCounter.propTypes = {
   bestStreak: PropTypes.number,
   progress: PropTypes.number,
   nextMilestone: PropTypes.number,
+  onCheckIn: PropTypes.func,
 };
 
 export default StreakCounter;
