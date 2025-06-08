@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Drawer,
   List,
   ListItem,
   ListItemIcon,
@@ -9,8 +8,12 @@ import {
   Box,
   Typography,
   Divider,
-  Collapse
+  Collapse,
+  Avatar,
+  useTheme
 } from '@mui/material';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../store/slices/authSlice';
 import {
   Dashboard as DashboardIcon,
   TrendingUp as StreakIcon,
@@ -23,8 +26,6 @@ import {
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
-const DRAWER_WIDTH = 280;
 
 const menuItems = [
   {
@@ -60,12 +61,9 @@ const menuItems = [
   }
 ];
 
-const Sidebar = ({
-  open,
-  onClose,
-  variant = 'permanent',
-  ...props
-}) => {
+const Sidebar = ({ onClose, variant = 'permanent' }) => {
+  const theme = useTheme();
+  const user = useSelector(selectUser);
   const location = useLocation();
   const navigate = useNavigate();
   const [openSubMenu, setOpenSubMenu] = React.useState('');
@@ -97,7 +95,7 @@ const Sidebar = ({
               mx: 1,
               '&.Mui-selected': {
                 backgroundColor: 'primary.light',
-                color: 'primary.main',
+                color: 'primary.contrastText',
                 '&:hover': {
                   backgroundColor: 'primary.light',
                 },
@@ -156,51 +154,58 @@ const Sidebar = ({
     <>
       <Box
         sx={{
-          p: 2,
+          p: 3,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          gap: 1,
-          height: "80px",
+          gap: 2,
         }}
       >
-        <Typography
-          variant="h6"
-          component="div"
+        <Avatar
+          src={user?.avatar}
           sx={{
-            fontWeight: 600,
-            color: 'primary.main',
+            width: 80,
+            height: 80,
+            bgcolor: 'primary.main',
+            fontSize: '2rem',
+            boxShadow: '0 4px 12px 0 rgba(0,0,0,0.1)',
           }}
         >
-          Semen Sage
-        </Typography>
+          {user?.name?.charAt(0)?.toUpperCase()}
+        </Avatar>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              color: 'text.primary',
+              fontSize: '1.1rem',
+            }}
+          >
+            {user?.name || 'Semen Sage'}
+          </Typography>
+          {user?.email && (
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontSize: '0.875rem',
+              }}
+            >
+              {user.email}
+            </Typography>
+          )}
+        </Box>
       </Box>
       <Divider />
-      <List sx={{ pt: 1 }}>
+      <List sx={{ px: 1 }}>
         {menuItems.map(renderMenuItem)}
       </List>
     </>
   );
 
   return (
-    <Drawer
-      variant={variant}
-      open={open}
-      onClose={onClose}
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          border: 'none',
-          backgroundColor: 'background.paper',
-          backgroundImage: 'none',
-        },
-      }}
-      {...props}
-    >
-      {drawerContent}
-    </Drawer>
+    <>{drawerContent}</>
   );
 };
 

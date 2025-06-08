@@ -49,37 +49,50 @@ const Header = ({
   return (
     <AppBar
       position="sticky"
-      elevation={1}
+      elevation={0}
       sx={{
-        backgroundColor: 'background.paper',
+        backgroundColor: 'transparent',
         color: 'text.primary',
-        borderBottom: 0,
-        borderRadius: 0,
-        justifyContent: 'flex-end',
+        backdropFilter: 'blur(6px)',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
       }}
       {...props}
     >
-      <Toolbar sx={{ p: 2, minHeight: 64, justifyContent:"flex-end" }}>
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="menu"
-          onClick={onMenuClick}
-          sx={{ 
-            mr: 1,
-            display: { xs: 'flex', md: 'none' },
-          }}
-        >
-          <MenuIcon />
-        </IconButton>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Toolbar sx={{ p: 2, minHeight: 64, justifyContent: "space-between" }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            onClick={onMenuClick}
+            sx={{ 
+              mr: 2,
+              display: { xs: 'flex', md: 'none' },
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ fontWeight: 600, display: { xs: 'none', sm: 'block' } }}>
+            {title}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           <Tooltip title="Notifications">
             <IconButton
               color="inherit"
               onClick={onNotificationClick}
             >
-              <Badge badgeContent={notificationCount} color="error">
+              <Badge 
+                badgeContent={notificationCount} 
+                color="error"
+                sx={{
+                  '& .MuiBadge-badge': {
+                    backgroundColor: '#ff4d4f',
+                    color: 'white',
+                  }
+                }}
+              >
                 <NotificationsIcon />
               </Badge>
             </IconButton>
@@ -101,7 +114,17 @@ const Header = ({
                   sx={{ width: 32, height: 32 }}
                 />
               ) : (
-                <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+                <Avatar 
+                  sx={{ 
+                    width: 36, 
+                    height: 36, 
+                    bgcolor: 'primary.main',
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'scale(1.05)',
+                    }
+                  }}
+                >
                   {user?.name?.charAt(0)?.toUpperCase() || <AccountCircle />}
                 </Avatar>
               )}
@@ -116,15 +139,35 @@ const Header = ({
           onClose={handleProfileMenuClose}
           onClick={handleProfileMenuClose}
           PaperProps={{
-            elevation: 3,
+            elevation: 2,
             sx: {
               overflow: 'visible',
-              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
               mt: 1.5,
-              minWidth: 200,
+              minWidth: 220,
+              borderRadius: 2,
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+              '& .MuiMenuItem-root': {
+                borderRadius: 1,
+                mx: 0.5,
+                mb: 0.5,
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              },
               '& .MuiAvatar-root': {
-                width: 32,
-                height: 32,
+                width: 36,
+                height: 36,
                 ml: -0.5,
                 mr: 1,
               },
