@@ -12,7 +12,8 @@ const initialState = {
     'success',
     'mindfulness',
     'growth',
-    'wisdom'
+    'wisdom',
+    'inspiration'
   ],
   filters: {
     category: 'all',

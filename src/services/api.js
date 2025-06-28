@@ -29,4 +29,9 @@ export const getStreak = async (uid) => {
   return response.data;
 };
 
+export const getDailyQuote = async () => {
+  const response = await api.get(`/quote/fetch-daily-quote`);
+  return response.data;
+};
+
 export default api;

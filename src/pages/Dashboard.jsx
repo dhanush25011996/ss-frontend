@@ -18,9 +18,9 @@ import {
   setLoading,
   setError,
 } from "../store/slices/streakSlice";
-import { selectDailyQuote } from "../store/slices/quoteSlice";
+import { selectDailyQuote, setDailyQuote } from "../store/slices/quoteSlice";
 import { selectUnlockedAchievements } from "../store/slices/achievementSlice";
-import { getStreak, checkIn } from "../services/api";
+import { getStreak, checkIn, getDailyQuote } from "../services/api";
 import { auth } from "../firebase";
 
 const Dashboard = () => {
@@ -33,17 +33,8 @@ const Dashboard = () => {
   const nextMilestone = useSelector(selectNextMilestone);
   const loading = useSelector(selectStreakLoading);
   const error = useSelector(selectStreakError);
-  const dailyQuote = useSelector(selectDailyQuote);
+  const quote = useSelector(selectDailyQuote);
   const recentAchievements = useSelector(selectUnlockedAchievements);
-
-  // Mock data for demonstration (quotes and achievements)
-  const mockDailyQuote = {
-    id: 1,
-    quote: "The only way to do great work is to love what you do.",
-    author: "Steve Jobs",
-    category: "motivation",
-    isFavorite: false,
-  };
 
   const mockRecentAchievements = [
     {
@@ -94,6 +85,28 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchDailyQuote = async () => {
+      dispatch(setLoading(true));
+      try {
+        const quoteData = await getDailyQuote();
+        dispatch(setDailyQuote(quoteData));
+      } catch (err) {
+        console.log(err.message);
+        dispatch(setError(err.message));
+      } finally {
+        dispatch(setLoading(false));
+      }
+    };
+
+    fetchDailyQuote();
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) fetchDailyQuote();
+    });
+
+    return () => unsubscribe();
+  }, [dispatch]);
+
   // Handle check-in
   const handleCheckIn = async () => {
     if (!auth.currentUser) {
@@ -139,10 +152,10 @@ const Dashboard = () => {
           {/* Daily Quote */}
           <Grid item xs={12} md={6} lg={8}>
             <QuoteCard
-              quote={dailyQuote?.quote || mockDailyQuote.quote}
-              author={dailyQuote?.author || mockDailyQuote.author}
-              category={dailyQuote?.category || mockDailyQuote.category}
-              isFavorite={dailyQuote?.isFavorite || mockDailyQuote.isFavorite}
+              quote={quote?.quote}
+              author={quote?.author}
+              category={quote?.category}
+              isFavorite={quote?.isFavorite}
               onFavoriteToggle={(isFavorite) => {
                 console.log("Toggle favorite:", isFavorite);
               }}
