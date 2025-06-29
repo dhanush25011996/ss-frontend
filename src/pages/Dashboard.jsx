@@ -1,32 +1,24 @@
 import React, { useEffect } from "react";
 import { Box, Grid, Typography, Paper, Container } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
+import { StreakCounter, QuoteCard, AchievementBadge } from "../components/features";
+import { Loading } from '../components/common'
 import {
-  StreakCounter,
-  QuoteCard,
-  AchievementBadge,
-} from "../components/features";
-import { Loading } from "../components/common";
-import {
-  selectCurrentStreak,
-  selectBestStreak,
-  selectStreakProgress,
-  selectNextMilestone,
-  selectStreakLoading,
-  selectStreakError,
-  setStreakData,
-  setLoading,
-  setError,
+  selectCurrentStreak, selectBestStreak, selectStreakProgress, selectNextMilestone,
+  selectStreakLoading, selectStreakError, setStreakData, setLoading, setError
 } from "../store/slices/streakSlice";
 import { selectDailyQuote, setDailyQuote } from "../store/slices/quoteSlice";
 import { selectUnlockedAchievements } from "../store/slices/achievementSlice";
 import { getStreak, checkIn, getDailyQuote } from "../services/api";
 import { auth } from "../firebase";
 
+const mockAchievements = [
+  { id: 1, title: "First Week", description: "7-day streak", icon: "fire", isUnlocked: true, rarity: "common", unlockedAt: "2024-01-15", category: "streak" },
+  { id: 2, title: "Community Member", description: "Joined community", icon: "group", isUnlocked: true, rarity: "common", unlockedAt: "2024-01-10", category: "community" }
+];
+
 const Dashboard = () => {
   const dispatch = useDispatch();
-
-  // Selectors
   const currentStreak = useSelector(selectCurrentStreak);
   const bestStreak = useSelector(selectBestStreak);
   const streakProgress = useSelector(selectStreakProgress);
@@ -34,40 +26,16 @@ const Dashboard = () => {
   const loading = useSelector(selectStreakLoading);
   const error = useSelector(selectStreakError);
   const quote = useSelector(selectDailyQuote);
-  const recentAchievements = useSelector(selectUnlockedAchievements);
 
-  const mockRecentAchievements = [
-    {
-      id: 1,
-      title: "First Week",
-      description: "Complete your first 7-day streak",
-      icon: "fire",
-      isUnlocked: true,
-      rarity: "common",
-      unlockedAt: "2024-01-15T10:30:00Z",
-      category: "streak",
-    },
-    {
-      id: 2,
-      title: "Community Member",
-      description: "Join the Semen Sage community",
-      icon: "group",
-      isUnlocked: true,
-      rarity: "common",
-      unlockedAt: "2024-01-10T14:20:00Z",
-      category: "community",
-    },
-  ];
-
-  // Fetch streak data on mount
   useEffect(() => {
-    const fetchStreak = async () => {
+    const fetchData = async () => {
       if (!auth.currentUser) return;
       dispatch(setLoading(true));
       try {
         const uid = auth.currentUser.uid;
-        const streakData = await getStreak(uid);
+        const [streakData, quoteData] = await Promise.all([getStreak(uid), getDailyQuote()]);
         dispatch(setStreakData(streakData));
+        dispatch(setDailyQuote(quoteData.data));
       } catch (err) {
         dispatch(setError(err.message));
       } finally {
@@ -75,48 +43,17 @@ const Dashboard = () => {
       }
     };
 
-    fetchStreak();
-
-    // Listen for auth state changes
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) fetchStreak();
-    });
-
+    fetchData();
+    const unsubscribe = auth.onAuthStateChanged((user) => user && fetchData());
     return () => unsubscribe();
   }, [dispatch]);
 
-  useEffect(() => {
-    const fetchDailyQuote = async () => {
-      dispatch(setLoading(true));
-      try {
-        const quoteData = await getDailyQuote();
-        dispatch(setDailyQuote(quoteData));
-      } catch (err) {
-        console.log(err.message);
-        dispatch(setError(err.message));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchDailyQuote();
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) fetchDailyQuote();
-    });
-
-    return () => unsubscribe();
-  }, [dispatch]);
-
-  // Handle check-in
   const handleCheckIn = async () => {
-    if (!auth.currentUser) {
-      dispatch(setError("Please sign in to check in."));
-      return;
-    }
+    if (!auth.currentUser) return dispatch(setError("Please sign in."));
     dispatch(setLoading(true));
     try {
-      const response = await checkIn();
-      dispatch(setStreakData(response.streak));
+      const { data } = await checkIn();
+      dispatch(setStreakData(data.streak));
     } catch (err) {
       dispatch(setError(err.message));
     } finally {
@@ -130,15 +67,12 @@ const Dashboard = () => {
   return (
     <Container maxWidth="xl">
       <Box sx={{ py: 2 }}>
-        <Typography variant="h4" component="h1" gutterBottom fontWeight={600}>
-          Welcome back! 👋
-        </Typography>
+        <Typography variant="h4" fontWeight={600}>Welcome back! 👋</Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-          Here's your progress overview for today.
+          Today's progress overview.
         </Typography>
 
         <Grid container spacing={3}>
-          {/* Streak Counter */}
           <Grid item xs={12} md={6} lg={4}>
             <StreakCounter
               currentStreak={currentStreak}
@@ -148,102 +82,44 @@ const Dashboard = () => {
               onCheckIn={handleCheckIn}
             />
           </Grid>
-
-          {/* Daily Quote */}
           <Grid item xs={12} md={6} lg={8}>
             <QuoteCard
+              quoteId={quote?.id}
               quote={quote?.quote}
               author={quote?.author}
               category={quote?.category}
               isFavorite={quote?.isFavorite}
-              onFavoriteToggle={(isFavorite) => {
-                console.log("Toggle favorite:", isFavorite);
-              }}
-              onShare={(quote) => {
-                console.log("Share quote:", quote);
-              }}
+              onFavoriteToggle={(isFavorite) => console.log("Toggle favorite:", isFavorite)}
+              onShare={(quote) => console.log("Share quote:", quote)}
             />
           </Grid>
-
-          {/* Recent Achievements */}
           <Grid item xs={12}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
-              <Typography variant="h6" gutterBottom fontWeight={600}>
-                Recent Achievements
-              </Typography>
+              <Typography variant="h6" fontWeight={600}>Recent Achievements</Typography>
               <Grid container spacing={2}>
-                {mockRecentAchievements.map((achievement) => (
+                {mockAchievements.map((achievement) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={achievement.id}>
-                    <AchievementBadge
-                      title={achievement.title}
-                      description={achievement.description}
-                      icon={achievement.icon}
-                      isUnlocked={achievement.isUnlocked}
-                      rarity={achievement.rarity}
-                      unlockedAt={achievement.unlockedAt}
-                      category={achievement.category}
-                    />
+                    <AchievementBadge {...achievement} />
                   </Grid>
                 ))}
               </Grid>
             </Paper>
           </Grid>
-
-          {/* Quick Stats */}
           <Grid item xs={12}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={3}>
-                <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-                  <Typography
-                    variant="h4"
-                    color="primary.main"
-                    fontWeight={600}
-                  >
-                    {currentStreak || 0}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Current Streak
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-                  <Typography
-                    variant="h4"
-                    color="secondary.main"
-                    fontWeight={600}
-                  >
-                    {mockRecentAchievements.length}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Achievements
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-                  <Typography variant="h4" color="info.main" fontWeight={600}>
-                    12
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Blog Posts
-                  </Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
-                  <Typography
-                    variant="h4"
-                    color="warning.main"
-                    fontWeight={600}
-                  >
-                    {Math.round(streakProgress) || 0}%
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Progress
-                  </Typography>
-                </Paper>
-              </Grid>
+              {[
+                { value: currentStreak || 0, label: "Current Streak", color: "primary.main" },
+                { value: mockAchievements.length, label: "Achievements", color: "secondary.main" },
+                { value: 12, label: "Blog Posts", color: "info.main" },
+                { value: `${Math.round(streakProgress) || 0}%`, label: "Progress", color: "warning.main" }
+              ].map(({ value, label, color }) => (
+                <Grid item xs={12} sm={6} md={3} key={label}>
+                  <Paper sx={{ p: 2, textAlign: "center", borderRadius: 2 }}>
+                    <Typography variant="h4" color={color} fontWeight={600}>{value}</Typography>
+                    <Typography variant="body2" color="text.secondary">{label}</Typography>
+                  </Paper>
+                </Grid>
+              ))}
             </Grid>
           </Grid>
         </Grid>

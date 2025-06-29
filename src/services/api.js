@@ -34,4 +34,14 @@ export const getDailyQuote = async () => {
   return response.data;
 };
 
+export const markQuoteAsFavorite = async (payload) => {
+  const response = await api.post(`quote/create-favorite-quote`, payload);
+  return response.data;
+};
+
+export const removeFavoriteQuote = async (payload) => {
+  const response = await api.post(`quote/remove-favorite-quote`, payload);
+  return response.data;
+};
+
 export default api;

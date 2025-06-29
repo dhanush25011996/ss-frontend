@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -6,17 +6,20 @@ import {
   Box,
   IconButton,
   Tooltip,
-  Chip
-} from '@mui/material';
+  Chip,
+} from "@mui/material";
 import {
   FormatQuote as QuoteIcon,
   Share as ShareIcon,
   Favorite as FavoriteIcon,
-  FavoriteBorder as FavoriteBorderIcon
-} from '@mui/icons-material';
-import PropTypes from 'prop-types';
+  FavoriteBorder as FavoriteBorderIcon,
+} from "@mui/icons-material";
+import PropTypes from "prop-types";
+import { markQuoteAsFavorite, removeFavoriteQuote } from "../../services/api";
+import { auth } from "../../firebase";
 
 const QuoteCard = ({
+  quoteId,
   quote,
   author,
   category,
@@ -27,10 +30,28 @@ const QuoteCard = ({
 }) => {
   const [favorite, setFavorite] = useState(isFavorite);
 
-  const handleFavoriteClick = () => {
-    setFavorite(!favorite);
-    if (onFavoriteToggle) {
-      onFavoriteToggle(!favorite);
+  const handleFavoriteClick = async () => {
+    if (!auth.currentUser) return;
+    const uid = auth.currentUser.uid;
+    const payload = {
+      userId: uid,
+      quoteId: quoteId,
+    };
+    try {
+      let response;
+      if (favorite) {
+        response = await removeFavoriteQuote(payload);
+      } else {
+        response = await markQuoteAsFavorite(payload);
+      }
+      if (response.success) {
+        setFavorite(!favorite);
+        if (onFavoriteToggle) {
+          onFavoriteToggle(!favorite);
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -41,7 +62,7 @@ const QuoteCard = ({
       // Default share functionality
       if (navigator.share) {
         navigator.share({
-          title: 'Motivational Quote',
+          title: "Motivational Quote",
           text: `"${quote}" - ${author}`,
         });
       } else {
@@ -56,10 +77,11 @@ const QuoteCard = ({
       elevation={2}
       sx={{
         borderRadius: 2,
-        position: 'relative',
-        background: (theme) => `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
-        border: '1px solid',
-        borderColor: 'divider',
+        position: "relative",
+        background: (theme) =>
+          `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.grey[50]} 100%)`,
+        border: "1px solid",
+        borderColor: "divider",
       }}
       {...props}
     >
@@ -68,7 +90,7 @@ const QuoteCard = ({
           <QuoteIcon
             sx={{
               fontSize: 32,
-              color: 'primary.main',
+              color: "primary.main",
               opacity: 0.7,
               mt: -0.5,
             }}
@@ -78,16 +100,16 @@ const QuoteCard = ({
               variant="h6"
               component="blockquote"
               sx={{
-                fontStyle: 'italic',
+                fontStyle: "italic",
                 lineHeight: 1.6,
                 mb: 2,
-                color: 'text.primary',
+                color: "text.primary",
                 fontWeight: 400,
               }}
             >
               "{quote}"
             </Typography>
-            
+
             <Box
               display="flex"
               justifyContent="space-between"
@@ -100,7 +122,7 @@ const QuoteCard = ({
                   variant="subtitle2"
                   sx={{
                     fontWeight: 600,
-                    color: 'text.secondary',
+                    color: "text.secondary",
                   }}
                 >
                   — {author}
@@ -111,32 +133,37 @@ const QuoteCard = ({
                     size="small"
                     sx={{
                       mt: 1,
-                      backgroundColor: 'primary.light',
-                      color: 'primary.main',
-                      fontSize: '0.75rem',
+                      backgroundColor: "primary.light",
+                      color: "primary.contrastText",
+                      fontSize: "0.75rem",
+                      p: 1,
                     }}
                   />
                 )}
               </Box>
-              
+
               <Box display="flex" gap={0.5}>
-                <Tooltip title={favorite ? 'Remove from favorites' : 'Add to favorites'}>
+                <Tooltip
+                  title={
+                    favorite ? "Remove from favorites" : "Add to favorites"
+                  }
+                >
                   <IconButton
                     size="small"
                     onClick={handleFavoriteClick}
                     sx={{
-                      color: favorite ? 'error.main' : 'text.secondary',
+                      color: favorite ? "error.main" : "text.secondary",
                     }}
                   >
                     {favorite ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                   </IconButton>
                 </Tooltip>
-                
+
                 <Tooltip title="Share quote">
                   <IconButton
                     size="small"
                     onClick={handleShareClick}
-                    sx={{ color: 'text.secondary' }}
+                    sx={{ color: "text.secondary" }}
                   >
                     <ShareIcon />
                   </IconButton>

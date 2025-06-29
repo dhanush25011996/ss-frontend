@@ -92,9 +92,8 @@ const StreakCounter = ({
 
       <Button
         variant="contained"
-        color="inherit"
         fullWidth
-        sx={{ mt: 2, backgroundColor: "white", color: "primary.main" }}
+        sx={{ mt: 2, backgroundColor: "white", color: "primary.contrastText" }}
         onClick={onCheckIn}
       >
         Check In

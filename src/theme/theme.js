@@ -1,90 +1,90 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#0a3d62', // Steel Navy
-      light: '#3d5a80',
-      dark: '#06223c',
-      contrastText: '#ffffff',
+      main: "#6b21a8", // Vivid Purple
+      light: "#a855f7",
+      dark: "#4a1a75",
+      contrastText: "#ffffff",
     },
     secondary: {
-      main: '#ff6f00', // Burnt Orange
-      light: '#ff9640',
-      dark: '#c43e00',
-      contrastText: '#ffffff',
+      main: "#f43f5e", // Radiant Pink
+      light: "#fb7185",
+      dark: "#be123c",
+      contrastText: "#ffffff",
     },
     success: {
-      main: '#2e7d32', // Dark Green
-      light: '#60ad5e',
-      dark: '#005005',
+      main: "#15803d", // Emerald Green
+      light: "#4ade80",
+      dark: "#14532d",
     },
     warning: {
-      main: '#f9a825', // Goldenrod
-      light: '#ffd95a',
-      dark: '#c17900',
+      main: "#f59e0b", // Amber Glow
+      light: "#facc15",
+      dark: "#b45309",
     },
     error: {
-      main: '#c62828', // Crimson Red
-      light: '#ef5350',
-      dark: '#8e0000',
+      main: "#dc2626", // Fiery Red
+      light: "#f87171",
+      dark: "#991b1b",
     },
     info: {
-      main: '#0277bd', // Steel Blue
-      light: '#58a5f0',
-      dark: '#004c8c',
+      main: "#0284c7", // Sapphire Blue
+      light: "#38bdf8",
+      dark: "#075985",
     },
     background: {
-      default: '#f4f4f6', // Cool Gray Background
-      paper: '#ffffff',
+      default: "#f0f9ff", // Light Sky Blue
+      paper: "#ffffff",
     },
     text: {
-      primary: '#1c1f26', // Almost Black
-      secondary: '#5c6370', // Gunmetal Gray
+      primary: "#1e293b", // Deep Slate
+      secondary: "#64748b", // Cool Slate
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
-      fontSize: '2.5rem',
+      fontSize: "2.5rem",
       fontWeight: 600,
       lineHeight: 1.2,
     },
     h2: {
-      fontSize: '2rem',
+      fontSize: "2rem",
       fontWeight: 600,
       lineHeight: 1.3,
     },
     h3: {
-      fontSize: '1.75rem',
+      fontSize: "1.75rem",
       fontWeight: 600,
       lineHeight: 1.3,
     },
     h4: {
-      fontSize: '1.5rem',
+      fontSize: "1.5rem",
       fontWeight: 600,
       lineHeight: 1.4,
     },
     h5: {
-      fontSize: '1.25rem',
+      fontSize: "1.25rem",
       fontWeight: 600,
       lineHeight: 1.4,
     },
     h6: {
-      fontSize: '1rem',
+      fontSize: "1rem",
       fontWeight: 600,
       lineHeight: 1.5,
     },
     body1: {
-      fontSize: '1rem',
+      fontSize: "1rem",
       lineHeight: 1.6,
     },
     body2: {
-      fontSize: '0.875rem',
+      fontSize: "0.875rem",
       lineHeight: 1.5,
     },
     button: {
-      textTransform: 'none',
+      textTransform: "none",
       fontWeight: 500,
     },
   },
@@ -97,13 +97,13 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          textTransform: 'none',
+          textTransform: "none",
           fontWeight: 500,
-          padding: '8px 16px',
-          boxShadow: 'none',
+          padding: "8px 16px",
+          boxShadow: "none",
         },
         contained: {
-          background: 'linear-gradient(135deg, #0a3d62 0%, #ff6f00 100%)',
+          background: "linear-gradient(135deg, #6b21a8 0%, #f43f5e 100%)",
         },
       },
     },
@@ -111,8 +111,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-          border: '1px solid rgba(0,0,0,0.08)',
+          boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
+          border: "1px solid rgba(0,0,0,0.08)",
         },
       },
     },
@@ -126,7 +126,7 @@ const theme = createTheme({
     MuiTextField: {
       styleOverrides: {
         root: {
-          '& .MuiOutlinedInput-root': {
+          "& .MuiOutlinedInput-root": {
             borderRadius: 8,
           },
         },
